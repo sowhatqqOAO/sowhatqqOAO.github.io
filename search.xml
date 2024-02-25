@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Azure Function 簡易使用</title>
+    <url>/2024/02/24/Azure%20Function%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>在很久以前就有在工作上有接觸過<a href="https://azure.microsoft.com/zh-tw/products/functions">Azure Function</a>，最近寫了一個小程式需要每天跑，但我又不想放在自己的電腦上跑，腦中突然浮現這不就是Azure Function使用的好時機!其實一開始我有嘗試用了<a href="https://aws.amazon.com/tw/lambda/">AWS Lambda</a>，但發現設定上不如Azure的方便，可能也是我對於AWS的不熟悉吧(O)，最後還是回到Azure的懷抱(還是熟悉的最對味?)</p>
+<span id="more"></span>
+
+<hr>
+<h3 id="一起探究Azure-Functions"><a href="#一起探究Azure-Functions" class="headerlink" title="一起探究Azure Functions"></a>一起探究Azure Functions</h3><p>Azure的優點是甚麼呢?<br>根據官方的描述是:Azure Functions 是事件驅動的無伺服器計算平台，可協助使用您所選擇的程式設計語言更有效率地進行開發。簡化複雜的協調流程挑戰、本機建置和偵錯、在雲端大規模部署，以及使用觸發程序與繫結將函式連線至 Azure 服務。開始使用 主要案例。<br>上述這些除此之外還有一個很重要的事情就是<font color="Green"><strong>省錢</strong></font>，大家知道雲雖然方便但便利性這種東西最大的代價就是錢錢的消失速度會很快xD<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/saveMoney.png" alt="省錢"><br><a href="https://azure.microsoft.com/zh-tw/pricing/details/functions/">Azure Functions定價</a>的訂價除了要看區域外還要看方案，以免費授權方案來說它有執行時間*	400,000 GB-s&#x2F;總執行數*	1 百萬次執行，的免費使用額度，這個應該很夠一些小程式去跑了<br>最後它目前可以做甚麼是情呢如下圖，令我訝異的是居然也能做到機器學習，不愧是我們在AI領域領跑的微軟(大力的吹)<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Functions.png" alt="功能"></p>
+<h3 id="Azure-Functions-NET版本支援"><a href="#Azure-Functions-NET版本支援" class="headerlink" title="Azure Functions .NET版本支援"></a>Azure Functions .NET版本支援</h3><p>目前Azure Function有支援到.NET 8，<a href="https://aws.amazon.com/tw/pm/lambda/?trk=898c616a-2f33-4c1c-b7c6-37bb17abd1f8&sc_channel=ps&ef_id=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB:G:s&s_kwcid=AL!4422!3!651541934818!p!!g!!aws%20lambda!19828211970!145729325446&gclid=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB">AWS目前只有支援到.NET6</a><del>不愧是競爭對手不能讓你這麼快速</del><br>微軟<a href="https://learn.microsoft.com/zh-TW/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process">官方文件</a>其實都寫得很詳細，實際上操作起來也蠻簡單的。</p>
+<h3 id="動手寫Code吧"><a href="#動手寫Code吧" class="headerlink" title="動手寫Code吧"></a>動手寫Code吧</h3><ol>
+<li>安裝Azure開發套件<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/VSAzureTools.png" alt="VS安裝"></li>
+<li>選擇開發範本<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/VSexample.png" alt="開發範本"></li>
+<li>輸入專案名稱以選擇要撰寫的Azure Functions的背景工作角色及Function的種類(這邊的種類多到選單要滾動…)，我選擇的是Timer Trigger<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/AzureFunctionVersion.png" alt=".NET版本"><br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Category.png" alt="種類"></li>
+<li>注意這邊的Schedule用的是<a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2,in-process,nodejs-v4&pivots=programming-language-csharp#cron-expressions">NCRONTAB expressions</a>，如果不清楚怎麼寫的話可以<a href="https://crontab.guru/#*_*_*_*_*">參考</a>，另外要注意時間上的問題，如果要在服務上使用的話記得去固定相對應的時區否則會有與你想像不同的時間觸發的問題喔</li>
+<li>建立後就可以獲得一個簡單的觸發專案了，對就這樣你有一個簡單的專案了</li>
+<li>要去設定Azure的服務開啟，相關設定可以<a href="https://igouist.github.io/post/2022/09/bus-reminder-2-azure-functions-timetrigger-with-line-notify/">參考</a></li>
+<li>寫完之後那我們要怎麼部屬呢<ol>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deploy.png" alt="Deploy"></li>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep1.png" alt="Step1"></li>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep2.png" alt="Step2"></li>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep3.png" alt="Step3"></li>
+</ol>
+</li>
+<li>確認你的服務有沒有成功部屬<ol>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Finally.png" alt="Finally"></li>
+<li>這邊的Name不一樣是因為我擷取的我另外一個Function的名稱，不是傳上去改變了xD<ol>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Finally2.png" alt="Finally"></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="題外話"><a href="#題外話" class="headerlink" title="題外話"></a>題外話</h3><ol>
+<li>這個部屬方式跟本機測試用起來是真的舒服，我開心的下一步下一步就好了</li>
+<li>其實Trigger也可以用DI的方式寫Code，當初我打開範本發覺好像哪邊怪怪的才發現原來要額外安裝，<a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection">說明</a>在這~</li>
+<li>部屬的時候可以透過 GitHub Action，而且是順便一起產生的，這件事情驚為天人，沒想到官方這麼貼心的把這CI&#x2F;CD也做好了痛哭流涕<del>拯救了我這個小白</del>，<a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=windows,dotnet&pivots=method-manual">參考連結</a></li>
+<li>時區的設定值可以放在Environment variables(Windows Serever)，Linux的寫法不同喔，詳情可以看<a href="https://blog.miniasp.com/post/2022/01/07/Change-TimeZone-in-Azure-App-Service-on-Windows-and-Linux?fbclid=IwAR2d66uLvcclAeqpaMyQI4Bs6WAfm9uVPKPhy3KAir48Nn8oEcXMbeMfj1U">保哥的文章</a><ol>
+<li>Name&#x3D;&gt;WEBSITE_TIME_ZONE</li>
+<li>Value&#x3D;&gt;Taipei Standard Time</li>
+</ol>
+</li>
+</ol>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a><font color="orange">Reference</font></h3><ol>
+<li><a href="https://hackmd.io/@blueskyson/azure-functions">https://hackmd.io/@blueskyson/azure-functions</a></li>
+<li><a href="https://azure.microsoft.com/zh-tw/products/functions">https://azure.microsoft.com/zh-tw/products/functions</a></li>
+<li><a href="https://aws.amazon.com/tw/pm/lambda/?trk=898c616a-2f33-4c1c-b7c6-37bb17abd1f8&sc_channel=ps&ef_id=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB:G:s&s_kwcid=AL!4422!3!651541934818!p!!g!!aws%20lambda!19828211970!145729325446&gclid=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB">https://aws.amazon.com/tw/pm/lambda/?trk=898c616a-2f33-4c1c-b7c6-37bb17abd1f8&amp;sc_channel=ps&amp;ef_id=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB:G:s&amp;s_kwcid=AL!4422!3!651541934818!p!!g!!aws%20lambda!19828211970!145729325446&amp;gclid=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB</a></li>
+<li><a href="https://learn.microsoft.com/zh-TW/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process">https://learn.microsoft.com/zh-TW/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process</a></li>
+<li><a href="https://igouist.github.io/post/2022/09/bus-reminder-2-azure-functions-timetrigger-with-line-notify/">https://igouist.github.io/post/2022/09/bus-reminder-2-azure-functions-timetrigger-with-line-notify/</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection">https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection</a></li>
+<li><a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=windows,dotnet&pivots=method-manual">https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=windows%2Cdotnet&amp;pivots=method-manual</a></li>
+<li><a href="https://blog.miniasp.com/post/2022/01/07/Change-TimeZone-in-Azure-App-Service-on-Windows-and-Linux?fbclid=IwAR2d66uLvcclAeqpaMyQI4Bs6WAfm9uVPKPhy3KAir48Nn8oEcXMbeMfj1U">https://blog.miniasp.com/post/2022/01/07/Change-TimeZone-in-Azure-App-Service-on-Windows-and-Linux?fbclid=IwAR2d66uLvcclAeqpaMyQI4Bs6WAfm9uVPKPhy3KAir48Nn8oEcXMbeMfj1U</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Azure</category>
+      </categories>
+      <tags>
+        <tag>Azure Function,Serverless</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo-GitHub-Actions-部署到你的GitHub</title>
+    <url>/2023/08/31/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p><a href="https://sowhatqqoao.github.io/2023/08/27/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EHexo%E5%BF%AB%E9%80%9F%E9%8D%B5%E7%AB%8B%E4%BD%A0%E7%9A%84Blog/">上一篇</a>介紹了透過Hexo快速建立部落格<font color="white"><del>其實研究了好久</del></font>，但突然想到文章能上Git做版控吧!!不然換電(換)腦(病)，這樣我要從新的把資料複製過來一次，每次都要搬好麻煩，於是在懶惰的驅使下找到了<strong>GitHub Actions</strong>的方案，不用還好一用真香!<img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/%E7%9C%9F%E9%A6%99.png" alt="真香"></p>
+<span id="more"></span>
+
+<h3 id="建立文章的Repository並上傳文章原始檔"><a href="#建立文章的Repository並上傳文章原始檔" class="headerlink" title="建立文章的Repository並上傳文章原始檔"></a>建立文章的Repository並上傳文章原始檔</h3><p>這邊可以選擇建立公開或私有Repository，選擇哪個都不會影響到後續GitHub Actions的操作。但要注意的是每個月免費帳號GitHub Actions只有<font color="Red"><strong>2000分鐘</strong></font>的限制(<a href="https://github.com/settings/billing">詳細說明</a>)，但這2000分鐘對於寫寫部落格來說應該很夠用了!最後記得把你的原始檔傳上GitHub。<br><img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/action%20minute.png" alt="GitHub Actions"></p>
+<p>此時部落格的Repository會有兩個</p>
+<ul>
+<li>Hexo Source：blog-source</li>
+<li>GitHub Pages：blog</li>
+</ul>
+<h3 id="設定GitHub-Actions"><a href="#設定GitHub-Actions" class="headerlink" title="設定GitHub Actions"></a>設定GitHub Actions</h3><ol>
+<li><strong>準備 Deploy key</strong><ul>
+<li>這裡需要透過ssh-keygen 生成公鑰私鑰，key 名稱可自取<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">ssh-keygen -f github-deploy-key</span><br></pre></td></tr></table></figure></li>
+<li>生成的key在會在 c:\Users\你的電腦名稱<img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/action%20minute.png" alt="key"></li>
+</ul>
+</li>
+<li><strong>相對應的Repository設定好Key</strong><ul>
+<li>Hexo Source:Setting-&gt;Secrets and variables-&gt;Actions-&gt;New repository secret，key貼上的是私鑰，Name的部分要注意寫好，後面的yaml會用到<br>  <img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/privatekey.png" alt="Source key setting"></li>
+<li>GitHub Pages:Setting-&gt;Deploy Keys-&gt;Add deploy Key，要貼上的是公鑰，Allow write access 一定要打勾授權!不然無法給GitHub Actions 部屬<br>  <img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/deploy%20key.png" alt="Pages"></li>
+</ul>
+</li>
+<li><strong>GitHub Actions</strong><ul>
+<li>前往blog-source專案底下的Action-&gt;new workflows-&gt; set up a workflow yourself，進到此頁之後就可以開始撰寫自己的yaml囉!<br> <img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/workflow.png" alt="new workflows"></li>
+</ul>
+</li>
+<li><h2 id="部屬yaml如下"><a href="#部屬yaml如下" class="headerlink" title="部屬yaml如下"></a><strong>部屬yaml如下</strong></h2><figure class="highlight console"><table><tr><td class="code"><pre><span class="line">name: HEXO CI</span><br><span class="line"></span><br><span class="line"> on:</span><br><span class="line"> push:</span><br><span class="line">     branches:</span><br><span class="line">     - main #設定push上main之後觸發</span><br><span class="line"></span><br><span class="line"> jobs:</span><br><span class="line"> build:</span><br><span class="line">     runs-on: ubuntu-latest</span><br><span class="line">     strategy:</span><br><span class="line">     matrix:</span><br><span class="line">         node-version: [18.17.1]#宣告node.js版本，通常是建議與你本機環境使用相同版本</span><br><span class="line"></span><br><span class="line">     steps:</span><br><span class="line">     - uses: actions/checkout@v3</span><br><span class="line"></span><br><span class="line">     - name: Use Node.js $&#123;&#123; matrix.node-version &#125;&#125;</span><br><span class="line">         uses: actions/setup-node@v3 #v2會提醒過時，v3就不會提醒node js</span><br><span class="line">         with:</span><br><span class="line">         node-version: $&#123;&#123; matrix.node-version &#125;&#125;</span><br><span class="line"></span><br><span class="line">     - name: Configuration environment</span><br><span class="line">         env:</span><br><span class="line">         HEXO_DEPLOY_PRI: $&#123;&#123;secrets.HEXO_DEPLOY_PRIVATEKEY&#125;&#125; #放上的是第二點的name寫錯就對應不到</span><br><span class="line">         run: |</span><br><span class="line">         mkdir -p ~/.ssh/</span><br><span class="line">         echo &quot;$HEXO_DEPLOY_PRI&quot; &gt; ~/.ssh/id_rsa</span><br><span class="line">         chmod 600 ~/.ssh/id_rsa</span><br><span class="line">         ssh-keyscan github.com &gt;&gt; ~/.ssh/known_hosts</span><br><span class="line">         git config --global user.name &quot;sowhatqqOAO&quot;</span><br><span class="line">         git config --global user.email &quot;sowhatqq@gmail.com&quot;</span><br><span class="line">         </span><br><span class="line">     - name: Install dependencies</span><br><span class="line">         run: |</span><br><span class="line">         npm i -g hexo-cli</span><br><span class="line">         npm i</span><br><span class="line">         npm install hexo-deployer-git --save </span><br><span class="line">     - name: Deploy hexo</span><br><span class="line">         run: |</span><br><span class="line">         hexo clean &amp;&amp; hexo generate &amp;&amp; hexo deploy -m &quot;push by $&#123;&#123;github.event.head_commit.message&#125;&#125;&quot; #為了讓公開的Repo知道發佈到哪，所以多拿取commit.message</span><br></pre></td></tr></table></figure></li>
+<li>Hexo Source，GitHub Pages的Action 檢查部屬狀態<br>- 首先前往Hexo Source 的Repository檢查Action<br>   <img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/Hexo%20Source.png" alt="Hexo Source"><br>- 再前往GitHub Pages的Repository檢查Action<br>- <img src="/../image/Hexo-GitHub-Actions-%E9%83%A8%E5%B1%AC%E5%88%B0%E4%BD%A0%E7%9A%84GitHub/GitHub%20Pages.png" alt="GitHub Pages"><br>- 兩個綠勾勾就代表完美達成了(<del>紅色XX看了真的好焦慮</del>)</li>
+<li><strong>前往username.github.io，享受自動部屬的成果</strong></li>
+</ol>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a><font color="orange">Reference</font></h3><ol>
+<li><a href="https://blog.yangjerry.tw/2022/04/19/hexo-github-actions-deploy/#%E8%A8%AD%E5%AE%9A-GitHub-Actions-Setting-GitHub-Actions">https://blog.yangjerry.tw/2022/04/19/hexo-github-actions-deploy/#%E8%A8%AD%E5%AE%9A-GitHub-Actions-Setting-GitHub-Actions</a></li>
+<li><a href="https://juejin.cn/post/7133927239153877022">https://juejin.cn/post/7133927239153877022</a></li>
+<li><a href="https://docs.github.com/en/actions/using-workflows/about-workflows">https://docs.github.com/en/actions/using-workflows/about-workflows</a></li>
+<li><a href="https://oreo.life/blog/2021-09-01-deploy-hexo-with-github-actions-1/">https://oreo.life/blog/2021-09-01-deploy-hexo-with-github-actions-1/</a></li>
+<li><a href="https://github.com/sma11black/hexo-action">範本內有些內容要修改</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo建立,GitHub Actions</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>.NET DI 生命週期</title>
+    <url>/2023/09/06/net-DI-%E7%94%9F%E5%91%BD%E9%80%B1%E6%9C%9F-LifeTime/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>是時後來筆記開發上所用的.NET了，寫文的時間點都已經出到 <a href="https://learn.microsoft.com/zh-tw/dotnet/core/whats-new/dotnet-8">.NET 8 Preview 7 </a>，此次要筆記的是有關.NET DI所使用的生命週期，現在大力推廣的是Dependency Injection，甚至可以說整個.NET框架都建立在Dependency Injection之上，在講到生命周期之前有兩個概念要先提及。</p>
+<span id="more"></span>
+
+<h3 id="IOC-Inversion-of-Control-控制反轉"><a href="#IOC-Inversion-of-Control-控制反轉" class="headerlink" title="IOC(Inversion of Control)控制反轉"></a>IOC(Inversion of Control)控制反轉</h3><ul>
+<li>是一種設計概念透過某個容器幫忙建立物件，換句話說就是把專業交給別人</li>
+<li>IoC經典實現對象設計法則。好萊塢法則：“別找我們，我們找你”</li>
+<li>舉例:想買一台電腦，通常不會是自己去把所有的零件自己製造生產，到最後把電腦組出來。而是選擇適當的店家談論一番後把零件買齊一小時後就能拿到新機。甚至直接買套裝好的。</li>
+</ul>
+<h3 id="依賴注入-Dependency-Injection"><a href="#依賴注入-Dependency-Injection" class="headerlink" title="依賴注入 Dependency Injection"></a>依賴注入 Dependency Injection</h3><ul>
+<li>減少程式的相依性，提高了程式的可測性</li>
+<li>必須用抽象來隔開，常見的有<a href="https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/keywords/interface">Interface</a></li>
+</ul>
+<h3 id="NET-DI-生命週期"><a href="#NET-DI-生命週期" class="headerlink" title=".NET DI 生命週期"></a>.NET DI 生命週期</h3><ol>
+<li>Transient(暫時性):每次被請求時都會創建並且從不共用</li>
+<li>Scoped(具範圍):每個範圍創建一個實例一次。對應用程序的每個請求都會創建一個範圍，因此註冊為 Scoped 的任何組件將在每個請求時創建一次。Request的請求終止會產生一個</li>
+<li>Singleton(單一):只會創建一個實例。該實例在需要它的所有組件之間共享。因此始終使用相同的實例。</li>
+</ol>
+<p>-其實看完這些文字後我還是沒有很懂，既然如此那就動手做試試看吧!</p>
+<h3 id="範例"><a href="#範例" class="headerlink" title="範例"></a>範例</h3><ol>
+<li>建立一個乾淨的WebApi專案</li>
+<li>新增以下的Interface <figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IOperation</span></span><br><span class="line">&#123;</span><br><span class="line">    Guid OperationId &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IOperationTransient</span> : <span class="title">IOperation</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IOperationScoped</span> : <span class="title">IOperation</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IOperationSingleton</span> : <span class="title">IOperation</span>&#123;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>新增一個cs檔案，繼承了Interface，也可以實作一些內容在這，我在這邊沒有實作任何內容xD</li>
+<li>到Program.cs，將要使用的範圍註冊到相對應的生命週期內，我使用的.NET7的版本，在.NET6之後Program.cs寫法可以更<a href="https://blog.miniasp.com/post/2021/10/25/ASP-NET-Core-6-Project-Template-and-CSharp-10-New-Features">整潔</a>，<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">builder.Services.AddScoped&lt;ISampleScoped, Sample&gt;();</span><br><span class="line">builder.Services.AddTransient&lt;ISampleTransient, Sample&gt;();</span><br><span class="line">builder.Services.AddSingleton&lt;ISampleSingleton, Sample&gt;();</span><br></pre></td></tr></table></figure></li>
+<li>回到Controller<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ExampleController</span> : <span class="title">ControllerBase</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ISampleScoped _scoped;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ISampleTransient _transient;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ISampleSingleton _singleton;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ISampleScoped _scoped2;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ISampleTransient _transient2;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> ISampleSingleton _singleton2;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ExampleController</span>(<span class="params">ISampleTransient transient,</span></span></span><br><span class="line"><span class="params"><span class="function">        ISampleScoped <span class="keyword">scoped</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">        ISampleSingleton singleton,</span></span></span><br><span class="line"><span class="params"><span class="function">        ISampleScoped scoped2,</span></span></span><br><span class="line"><span class="params"><span class="function">        ISampleTransient transient2,</span></span></span><br><span class="line"><span class="params"><span class="function">        ISampleSingleton singleton2</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _transient = transient;</span><br><span class="line">        _scoped = <span class="keyword">scoped</span>;</span><br><span class="line">        _singleton = singleton;</span><br><span class="line">        _scoped2 = scoped2;</span><br><span class="line">        _transient2 = transient2;</span><br><span class="line">        _singleton2 = singleton2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">HttpGet</span>]</span><br><span class="line">    <span class="keyword">public</span> ActionResult&lt;IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;&gt; Get()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> controllerHashCode = <span class="string">$&quot;Transient: <span class="subst">&#123;_transient.GetHashCode()&#125;</span>, &quot;</span></span><br><span class="line">                                + <span class="string">$&quot;Scoped: <span class="subst">&#123;_scoped.GetHashCode()&#125;</span>, &quot;</span></span><br><span class="line">                                + <span class="string">$&quot;Singleton: <span class="subst">&#123;_singleton.GetHashCode()&#125;</span>&quot;</span>;</span><br><span class="line">        <span class="keyword">var</span> controllerHashCode2 = <span class="string">$&quot;Transient2: <span class="subst">&#123;_transient2.GetHashCode()&#125;</span>, &quot;</span></span><br><span class="line">                                + <span class="string">$&quot;Scoped2: <span class="subst">&#123;_scoped2.GetHashCode()&#125;</span>, &quot;</span></span><br><span class="line">                                + <span class="string">$&quot;Singleton2: <span class="subst">&#123;_singleton2.GetHashCode()&#125;</span>&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Dictionary&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            &#123; <span class="string">&quot;controllerHashCode&quot;</span>, controllerHashCode &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;controllerHashCode2&quot;</span>, controllerHashCode2 &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<li>從回傳的結果再搭配看原本生命週期的解釋應該<del>有多懂一點吧</del>，如果沒有重複的寫出Transient與Scoped的話，每次重送Request反而會看不太出差異…</li>
+</ol>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a><font color="orange">Reference</font></h3><ol>
+<li><a href="https://blog.johnwu.cc/article/asp-net-core-3-dependency-injection.html?source=post_page-----c00db719711--------------------------------">https://blog.johnwu.cc/article/asp-net-core-3-dependency-injection.html?source=post_page-----c00db719711--------------------------------</a></li>
+<li><a href="https://blog.shiangsoft.com/netcore-dependency-injection/">https://blog.shiangsoft.com/netcore-dependency-injection/</a></li>
+<li><a href="https://marcus116.blogspot.com/2019/04/netcore-aspnet-core-di-lifetime.html">https://marcus116.blogspot.com/2019/04/netcore-aspnet-core-di-lifetime.html</a></li>
+<li><a href="https://blog.darkthread.net/blog/dotnet-6-release/">https://blog.darkthread.net/blog/dotnet-6-release/</a></li>
+<li><a href="https://www.cnblogs.com/jesse2013/p/di-in-aspnetcore.html">https://www.cnblogs.com/jesse2013/p/di-in-aspnetcore.html</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>.NET</category>
+      </categories>
+      <tags>
+        <tag>.NET</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何透過Hexo快速建立你的Blog</title>
+    <url>/2023/08/27/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EHexo%E5%BF%AB%E9%80%9F%E9%8D%B5%E7%AB%8B%E4%BD%A0%E7%9A%84Blog/</url>
+    <content><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>最近想要寫部落格，於是搜尋了一下發現有一款叫做<a href="https://hexo.io/zh-tw/index.html">Hexo</a>的框架，還可以上傳到Github，又可以用MarkDown，那就決定是你了<br><img src="/../image/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EHexo%E5%BF%AB%E9%80%9F%E9%8D%B5%E7%AB%8B%E4%BD%A0%E7%9A%84Blog/Hexo.png" alt="Hexo官方"></p>
+<span id="more"></span>
+
+<hr>
+<h3 id="前置作業"><a href="#前置作業" class="headerlink" title="前置作業"></a>前置作業</h3><p>以下這三點就不贅述了，有相對應的官方教學閱讀起來難度並不高</p>
+<ol>
+<li><a href="http://nodejs.org/">安裝Node.js </a></li>
+<li><a href="https://git-scm.com/book/zh-tw/v2/%E9%96%8B%E5%A7%8B-Git-%E5%AE%89%E8%A3%9D%E6%95%99%E5%AD%B8">Git安裝</a></li>
+<li><a href="https://pages.github.com/">GitHub Repository</a></li>
+</ol>
+<hr>
+<h3 id="Welcome-Hexo"><a href="#Welcome-Hexo" class="headerlink" title="Welcome Hexo"></a>Welcome Hexo</h3><ol>
+<li>以下需要透過npm安裝<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">npm install hexo-cli -g #global</span><br><span class="line">hexo -v #檢查Hexo版本</span><br></pre></td></tr></table></figure></li>
+<li>進到 <strong>username.github.io</strong> 資料夾請記得要是空的資料夾，安裝套件，直接在檔案位子打cmd便可以快速到此目錄(<del>沒錯我就是指令苦手</del>)<br><img src="/../image/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EHexo%E5%BF%AB%E9%80%9F%E9%8D%B5%E7%AB%8B%E4%BD%A0%E7%9A%84Blog/CMDtoPath.png" alt="快到CD到此目錄"><figure class="highlight console"><table><tr><td class="code"><pre><span class="line">hexo init</span><br></pre></td></tr></table></figure></li>
+<li><strong>關聯回你的GitHub Repository吧!</strong> <ul>
+<li><img src="/../image/%E5%A6%82%E4%BD%95%E9%80%8F%E9%81%8EHexo%E5%BF%AB%E9%80%9F%E9%8D%B5%E7%AB%8B%E4%BD%A0%E7%9A%84Blog/RepoLink.png" alt="複製Repo"><figure class="highlight console"><table><tr><td class="code"><pre><span class="line">git remote add origin GitHub RepositoryLink #關連Github</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><strong>Run Go!</strong><ul>
+<li>恭喜到這已經完成了最基本的安裝Hexo，接下來就可以在Local啟動</li>
+<li>預設的Port是4000<a href="http://localhost:4000/"><strong>本機連結</strong></a><figure class="highlight console"><table><tr><td class="code"><pre><span class="line">hexo server or hexo s</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><strong>Deploy 回到你的GitHub囉</strong><ul>
+<li>首先要再安裝一個插件 hexo-deployer-git<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></li>
+<li><a href="https://hexo.io/zh-tw/docs/one-command-deployment.html">接著到_config.yml設定你的Git資訊，官方文檔有很多其餘的參數介紹可參考<del>有中文</del></a><figure class="highlight console"><table><tr><td class="code"><pre><span class="line">deploy:</span><br><span class="line">    type: git</span><br><span class="line">    repo: https://github.com/xxxxx/xxxxx.git</span><br><span class="line">    branch: main</span><br></pre></td></tr></table></figure></li>
+<li><a href="https://hexo.io/zh-tw/docs/generating.html">最後搭配兩行指令</a>，雖然只有兩行但每次到都要輸入會令人很煩躁呢…<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">hexo clean --清除發佈檔案內容</span><br><span class="line">hexo deploy or hexo generate --這兩個指令作用相同，詳情可參考官方網站</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>6.<strong>如果不能接受這個主題的話，我們前往下一步換主題</strong></p>
+<ul>
+<li><p>一定要挑一個有人在維護的主題 eg:<a href="https://github.com/theme-next/hexo-theme-next/tree/master">NexT</a>，接下來我們就以把主題替換成Next來舉例吧!</p>
+</li>
+<li><p>首先下載主題，方式有以下兩種，最後選擇的是<a href="https://myapollo.com.tw/blog/git-tutorial-submodule/">git submodule</a>，至於為甚麼應該會放在下一篇文揭曉</p>
+<ul>
+<li>第一種:  git clone <a href="https://github.com/next-theme/hexo-theme-next.git">https://github.com/next-theme/hexo-theme-next.git</a>  </li>
+<li>第二種:  git submodule add <a href="https://github.com/next-theme/hexo-theme-next.git">https://github.com/next-theme/hexo-theme-next.git</a></li>
+</ul>
+</li>
+<li><p>修改根目錄底下的_config.yml，主題的資料夾下也有一個(別走錯棚了)</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure></li>
+<li><p>此時透過下方的指令(對又是這兩行)，你就能發現主題改變了從科幻風變成樸素簡約，可以開始寫文章了</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">hexo clean --清除發佈檔案內容</span><br><span class="line">hexo deploy or hexo generate --這兩個指令作用相同，詳情可參考官方網站</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a><font color="orange">Reference</font></h3><ol>
+<li><a href="https://babygoat.github.io/2017/09/13/Hexo-%E5%AE%89%E8%A3%9D%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/#undefined">https://babygoat.github.io/2017/09/13/Hexo-%E5%AE%89%E8%A3%9D%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/#undefined</a></li>
+<li><a href="https://ycjhuo.gitlab.io/blogs/Hexo-How-To-Change-Themes.html#%E5%A5%97%E7%94%A8-next-%E4%B8%BB%E9%A1%8C">https://ycjhuo.gitlab.io/blogs/Hexo-How-To-Change-Themes.html#%E5%A5%97%E7%94%A8-next-%E4%B8%BB%E9%A1%8C</a></li>
+<li><a href="https://myapollo.com.tw/blog/git-tutorial-submodule/">https://myapollo.com.tw/blog/git-tutorial-submodule/</a></li>
+<li><a href="https://hexo.io/zh-tw/docs/one-command-deployment.html">https://hexo.io/zh-tw/docs/one-command-deployment.html</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo建立,快速上手</tag>
+      </tags>
+  </entry>
+</search>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"sowhatqqoao.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.18.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜尋...","empty":"我們無法找到任何有關 ${query} 的搜索結果","hits_time":"${hits} 找到 ${time} 個結果","hits":"找到 ${hits} 個結果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="前言 在很久以前就有在工作上有接觸過Azure Function，最近寫了一個小程式需要每天跑，但我又不想放在自己的電腦上跑，腦中突然浮現這不就是Azure Function使用的好時機!其實一開始我有嘗試用了AWS Lambda，但發現設定上不如Azure的方便，可能也是我對於AWS的不熟悉吧(O)，最後還是回到Azure的懷抱(還是熟悉的最對味?)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Azure Function 簡易使用">
+<meta property="og:url" content="https://sowhatqqoao.github.io/2024/02/24/Azure%20Function%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/index.html">
+<meta property="og:site_name" content="Tim">
+<meta property="og:description" content="前言 在很久以前就有在工作上有接觸過Azure Function，最近寫了一個小程式需要每天跑，但我又不想放在自己的電腦上跑，腦中突然浮現這不就是Azure Function使用的好時機!其實一開始我有嘗試用了AWS Lambda，但發現設定上不如Azure的方便，可能也是我對於AWS的不熟悉吧(O)，最後還是回到Azure的懷抱(還是熟悉的最對味?)">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/saveMoney.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Functions.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/VSAzureTools.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/VSexample.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/AzureFunctionVersion.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Category.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deploy.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep1.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep2.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep3.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Finally.png">
+<meta property="og:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Finally2.png">
+<meta property="article:published_time" content="2024-02-24T14:06:42.000Z">
+<meta property="article:modified_time" content="2024-02-25T10:04:31.875Z">
+<meta property="article:author" content="Tim_shen">
+<meta property="article:tag" content="Azure Function,Serverless">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sowhatqqoao.github.io/image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/saveMoney.png">
+
+
+<link rel="canonical" href="https://sowhatqqoao.github.io/2024/02/24/Azure%20Function%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-TW","comments":true,"permalink":"https://sowhatqqoao.github.io/2024/02/24/Azure%20Function%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/","path":"2024/02/24/Azure Function簡易建立/","title":"Azure Function 簡易使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Azure Function 簡易使用 | Tim</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tim</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇幻大冒險</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜尋" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>關於</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>標籤</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分類</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>歸檔</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E8%B5%B7%E6%8E%A2%E7%A9%B6Azure-Functions"><span class="nav-number">2.</span> <span class="nav-text">一起探究Azure Functions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Azure-Functions-NET%E7%89%88%E6%9C%AC%E6%94%AF%E6%8F%B4"><span class="nav-number">3.</span> <span class="nav-text">Azure Functions .NET版本支援</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8B%95%E6%89%8B%E5%AF%ABCode%E5%90%A7"><span class="nav-number">4.</span> <span class="nav-text">動手寫Code吧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%8C%E5%A4%96%E8%A9%B1"><span class="nav-number">5.</span> <span class="nav-text">題外話</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Tim_shen</p>
+  <div class="site-description" itemprop="description">奇幻大冒險全紀錄</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">標籤</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://sowhatqqoao.github.io/2024/02/24/Azure%20Function%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Tim_shen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tim">
+      <meta itemprop="description" content="奇幻大冒險全紀錄">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Azure Function 簡易使用 | Tim">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Azure Function 簡易使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">發表於</span>
+
+      <time title="創建時間：2024-02-24 22:06:42" itemprop="dateCreated datePublished" datetime="2024-02-24T22:06:42+08:00">2024-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新於</span>
+      <time title="修改時間：2024-02-25 18:04:31" itemprop="dateModified" datetime="2024-02-25T18:04:31+08:00">2024-02-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分類於</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Azure/" itemprop="url" rel="index"><span itemprop="name">Azure</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="閱讀次數" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">閱讀次數：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>在很久以前就有在工作上有接觸過<a target="_blank" rel="noopener" href="https://azure.microsoft.com/zh-tw/products/functions">Azure Function</a>，最近寫了一個小程式需要每天跑，但我又不想放在自己的電腦上跑，腦中突然浮現這不就是Azure Function使用的好時機!其實一開始我有嘗試用了<a target="_blank" rel="noopener" href="https://aws.amazon.com/tw/lambda/">AWS Lambda</a>，但發現設定上不如Azure的方便，可能也是我對於AWS的不熟悉吧(O)，最後還是回到Azure的懷抱(還是熟悉的最對味?)</p>
+<span id="more"></span>
+
+<hr>
+<h3 id="一起探究Azure-Functions"><a href="#一起探究Azure-Functions" class="headerlink" title="一起探究Azure Functions"></a>一起探究Azure Functions</h3><p>Azure的優點是甚麼呢?<br>根據官方的描述是:Azure Functions 是事件驅動的無伺服器計算平台，可協助使用您所選擇的程式設計語言更有效率地進行開發。簡化複雜的協調流程挑戰、本機建置和偵錯、在雲端大規模部署，以及使用觸發程序與繫結將函式連線至 Azure 服務。開始使用 主要案例。<br>上述這些除此之外還有一個很重要的事情就是<font color="Green"><strong>省錢</strong></font>，大家知道雲雖然方便但便利性這種東西最大的代價就是錢錢的消失速度會很快xD<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/saveMoney.png" alt="省錢"><br><a target="_blank" rel="noopener" href="https://azure.microsoft.com/zh-tw/pricing/details/functions/">Azure Functions定價</a>的訂價除了要看區域外還要看方案，以免費授權方案來說它有執行時間*	400,000 GB-s&#x2F;總執行數*	1 百萬次執行，的免費使用額度，這個應該很夠一些小程式去跑了<br>最後它目前可以做甚麼是情呢如下圖，令我訝異的是居然也能做到機器學習，不愧是我們在AI領域領跑的微軟(大力的吹)<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Functions.png" alt="功能"></p>
+<h3 id="Azure-Functions-NET版本支援"><a href="#Azure-Functions-NET版本支援" class="headerlink" title="Azure Functions .NET版本支援"></a>Azure Functions .NET版本支援</h3><p>目前Azure Function有支援到.NET 8，<a target="_blank" rel="noopener" href="https://aws.amazon.com/tw/pm/lambda/?trk=898c616a-2f33-4c1c-b7c6-37bb17abd1f8&sc_channel=ps&ef_id=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB:G:s&s_kwcid=AL!4422!3!651541934818!p!!g!!aws%20lambda!19828211970!145729325446&gclid=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB">AWS目前只有支援到.NET6</a><del>不愧是競爭對手不能讓你這麼快速</del><br>微軟<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-TW/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process">官方文件</a>其實都寫得很詳細，實際上操作起來也蠻簡單的。</p>
+<h3 id="動手寫Code吧"><a href="#動手寫Code吧" class="headerlink" title="動手寫Code吧"></a>動手寫Code吧</h3><ol>
+<li>安裝Azure開發套件<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/VSAzureTools.png" alt="VS安裝"></li>
+<li>選擇開發範本<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/VSexample.png" alt="開發範本"></li>
+<li>輸入專案名稱以選擇要撰寫的Azure Functions的背景工作角色及Function的種類(這邊的種類多到選單要滾動…)，我選擇的是Timer Trigger<br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/AzureFunctionVersion.png" alt=".NET版本"><br><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Category.png" alt="種類"></li>
+<li>注意這邊的Schedule用的是<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2,in-process,nodejs-v4&pivots=programming-language-csharp#cron-expressions">NCRONTAB expressions</a>，如果不清楚怎麼寫的話可以<a target="_blank" rel="noopener" href="https://crontab.guru/#*_*_*_*_*">參考</a>，另外要注意時間上的問題，如果要在服務上使用的話記得去固定相對應的時區否則會有與你想像不同的時間觸發的問題喔</li>
+<li>建立後就可以獲得一個簡單的觸發專案了，對就這樣你有一個簡單的專案了</li>
+<li>要去設定Azure的服務開啟，相關設定可以<a target="_blank" rel="noopener" href="https://igouist.github.io/post/2022/09/bus-reminder-2-azure-functions-timetrigger-with-line-notify/">參考</a></li>
+<li>寫完之後那我們要怎麼部屬呢<ol>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deploy.png" alt="Deploy"></li>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep1.png" alt="Step1"></li>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep2.png" alt="Step2"></li>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/deployStep3.png" alt="Step3"></li>
+</ol>
+</li>
+<li>確認你的服務有沒有成功部屬<ol>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Finally.png" alt="Finally"></li>
+<li>這邊的Name不一樣是因為我擷取的我另外一個Function的名稱，不是傳上去改變了xD<ol>
+<li><img src="/../image/AzureFunction%E7%B0%A1%E6%98%93%E5%BB%BA%E7%AB%8B/Finally2.png" alt="Finally"></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="題外話"><a href="#題外話" class="headerlink" title="題外話"></a>題外話</h3><ol>
+<li>這個部屬方式跟本機測試用起來是真的舒服，我開心的下一步下一步就好了</li>
+<li>其實Trigger也可以用DI的方式寫Code，當初我打開範本發覺好像哪邊怪怪的才發現原來要額外安裝，<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection">說明</a>在這~</li>
+<li>部屬的時候可以透過 GitHub Action，而且是順便一起產生的，這件事情驚為天人，沒想到官方這麼貼心的把這CI&#x2F;CD也做好了痛哭流涕<del>拯救了我這個小白</del>，<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=windows,dotnet&pivots=method-manual">參考連結</a></li>
+<li>時區的設定值可以放在Environment variables(Windows Serever)，Linux的寫法不同喔，詳情可以看<a target="_blank" rel="noopener" href="https://blog.miniasp.com/post/2022/01/07/Change-TimeZone-in-Azure-App-Service-on-Windows-and-Linux?fbclid=IwAR2d66uLvcclAeqpaMyQI4Bs6WAfm9uVPKPhy3KAir48Nn8oEcXMbeMfj1U">保哥的文章</a><ol>
+<li>Name&#x3D;&gt;WEBSITE_TIME_ZONE</li>
+<li>Value&#x3D;&gt;Taipei Standard Time</li>
+</ol>
+</li>
+</ol>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a><font color="orange">Reference</font></h3><ol>
+<li><a target="_blank" rel="noopener" href="https://hackmd.io/@blueskyson/azure-functions">https://hackmd.io/@blueskyson/azure-functions</a></li>
+<li><a target="_blank" rel="noopener" href="https://azure.microsoft.com/zh-tw/products/functions">https://azure.microsoft.com/zh-tw/products/functions</a></li>
+<li><a target="_blank" rel="noopener" href="https://aws.amazon.com/tw/pm/lambda/?trk=898c616a-2f33-4c1c-b7c6-37bb17abd1f8&sc_channel=ps&ef_id=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB:G:s&s_kwcid=AL!4422!3!651541934818!p!!g!!aws%20lambda!19828211970!145729325446&gclid=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB">https://aws.amazon.com/tw/pm/lambda/?trk=898c616a-2f33-4c1c-b7c6-37bb17abd1f8&amp;sc_channel=ps&amp;ef_id=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB:G:s&amp;s_kwcid=AL!4422!3!651541934818!p!!g!!aws%20lambda!19828211970!145729325446&amp;gclid=Cj0KCQiAxOauBhCaARIsAEbUSQTbV4R6OsWOFj360gKbf58XKXZbz7WHouIcDq0RAiM6wuIETxfjZBQaAiSDEALw_wcB</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-TW/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process">https://learn.microsoft.com/zh-TW/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process</a></li>
+<li><a target="_blank" rel="noopener" href="https://igouist.github.io/post/2022/09/bus-reminder-2-azure-functions-timetrigger-with-line-notify/">https://igouist.github.io/post/2022/09/bus-reminder-2-azure-functions-timetrigger-with-line-notify/</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection">https://learn.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=windows,dotnet&pivots=method-manual">https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=windows%2Cdotnet&amp;pivots=method-manual</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.miniasp.com/post/2022/01/07/Change-TimeZone-in-Azure-App-Service-on-Windows-and-Linux?fbclid=IwAR2d66uLvcclAeqpaMyQI4Bs6WAfm9uVPKPhy3KAir48Nn8oEcXMbeMfj1U">https://blog.miniasp.com/post/2022/01/07/Change-TimeZone-in-Azure-App-Service-on-Windows-and-Linux?fbclid=IwAR2d66uLvcclAeqpaMyQI4Bs6WAfm9uVPKPhy3KAir48Nn8oEcXMbeMfj1U</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Azure-Function-Serverless/" rel="tag"># Azure Function,Serverless</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/09/06/net-DI-%E7%94%9F%E5%91%BD%E9%80%B1%E6%9C%9F-LifeTime/" rel="prev" title=".NET DI 生命週期">
+                  <i class="fa fa-angle-left"></i> .NET DI 生命週期
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Tim_shen</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="訪客總數">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="總瀏覽次數">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 強力驅動
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="回到頂端">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/next-theme-pjax/0.6.0/pjax.min.js" integrity="sha256-vxLn1tSKWD4dqbMRyv940UYw4sXgMtYcK6reefzZrao=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script><script src="/js/pjax.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: '32px',
+  left: 'unset',
+  time: '0.5s',
+  mixColor: 'transparent',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+</body>
+</html>
